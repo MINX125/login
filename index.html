@@ -130,7 +130,7 @@
     </div>
 
     <script>
-        // 1. CONFIG FIREBASE (HARUS SAMA DENGAN ADMIN PANEL)
+        // 1. CONFIG FIREBASE MENGGUNAKAN LINK BARU
         const firebaseConfig = {
             databaseURL: "https://fir-demo-1e3ca-default-rtdb.asia-southeast1.firebasedatabase.app"
         };
@@ -194,11 +194,11 @@
                         resetButton();
                     }
                 } else {
-                    showMessage("LICENSE KEY TIDAK VALID ATAU TIDAK DITEMUKAN.", "err");
+                    showMessage("LICENSE KEY TIDAK VALID/TIDAK DITEMUKAN.", "err");
                     resetButton();
                 }
             }).catch((error) => {
-                showMessage("Gagal terhubung ke server.", "err");
+                showMessage("Gagal terhubung ke database.", "err");
                 resetButton();
             });
         }
@@ -208,16 +208,16 @@
             btnAuth.disabled = false;
         }
 
-                // 4. JEMBATAN KE APLIKASI SMALI
+        // 4. JEMBATAN KE APLIKASI SMALI
         function grantAccess(msg) {
             showMessage(msg + " Memuat...", "succ");
             btnAuth.textContent = "AUTHORIZED";
             
             setTimeout(() => {
                 // KIRIM SINYAL RAHASIA KE APK
+                // Sinyal ini akan ditangkap oleh LoginClient.smali
                 window.location.href = "minz://sukses";
             }, 1000);
-        }
         }
     </script>
 
