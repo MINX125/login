@@ -208,22 +208,16 @@
             btnAuth.disabled = false;
         }
 
-        // 4. JEMBATAN KE APLIKASI SMALI
+                // 4. JEMBATAN KE APLIKASI SMALI
         function grantAccess(msg) {
             showMessage(msg + " Memuat...", "succ");
             btnAuth.textContent = "AUTHORIZED";
             
             setTimeout(() => {
-                // Tembakkan sinyal ke Android Niotron/AppInventor
-                if (window.Niotron) {
-                    window.Niotron.setWebViewString("LOGIN_SUKSES");
-                } else if (window.AppInventor) {
-                    window.AppInventor.setWebViewString("LOGIN_SUKSES");
-                } else {
-                    // Fallback jika dibuka di browser biasa (bukan di dalam APK)
-                    showMessage("Menunggu respons dari Aplikasi...", "load");
-                }
+                // KIRIM SINYAL RAHASIA KE APK
+                window.location.href = "minz://sukses";
             }, 1000);
+        }
         }
     </script>
 
