@@ -30,6 +30,7 @@
             align-items: center;
             height: 100vh;
             overflow: hidden;
+            position: relative; /* Ditambahkan untuk Trace ID */
         }
 
         .login-card {
@@ -40,7 +41,9 @@
             width: 85%;
             max-width: 320px;
             text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            position: relative;
+            z-index: 2;
         }
 
         h2 {
@@ -115,6 +118,25 @@
         .err { color: var(--danger); }
         .succ { color: var(--success); }
         .load { color: var(--text-muted); }
+
+        /* GAYA BARU UNTUK TRACE ID */
+        .trace-id-container {
+            margin-top: 30px;
+            padding-top: 15px;
+            border-top: 1px dashed #333;
+        }
+
+        .trace-id-text {
+            font-family: monospace;
+            font-size: 10px;
+            color: #555;
+            letter-spacing: 1px;
+        }
+
+        .trace-id-value {
+            color: #888;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -127,10 +149,14 @@
         <button id="btnAuth" onclick="prosesLogin()">AUTHENTICATE</button>
         
         <div id="msgBox"></div>
+
+        <div class="trace-id-container">
+            <span class="trace-id-text">SYSTEM TRACE ID: <br><span class="trace-id-value" id="displayHWID">SCANNING...</span></span>
+        </div>
     </div>
 
     <script>
-        // 1. CONFIG FIREBASE MENGGUNAKAN LINK BARU
+        // 1. CONFIG FIREBASE
         const firebaseConfig = {
             databaseURL: "https://fir-demo-1e3ca-default-rtdb.asia-southeast1.firebasedatabase.app"
         };
@@ -143,6 +169,11 @@
             myHWID = "DEV-" + Math.random().toString(36).substr(2, 10).toUpperCase();
             localStorage.setItem("DEVICE_HWID", myHWID);
         }
+
+        // TAMPILKAN HWID KE LAYAR DENGAN EFEK DELAY KECIL BIAR KEREN
+        setTimeout(() => {
+            document.getElementById("displayHWID").innerText = myHWID;
+        }, 800);
 
         // 3. FUNGSI LOGIKA LOGIN
         const msgBox = document.getElementById("msgBox");
@@ -161,7 +192,6 @@
                 return;
             }
 
-            // Kunci tombol saat loading
             btnAuth.textContent = "VERIFYING...";
             btnAuth.disabled = true;
             showMessage("Memeriksa kredensial ke server...", "load");
@@ -179,17 +209,14 @@
                     }
 
                     if (data.hwid === "") {
-                        // Kunci ke Device Ini
                         keyRef.update({ hwid: myHWID }).then(() => {
                             grantAccess("Lisensi berhasil diikat ke perangkat.");
                         });
                     } 
                     else if (data.hwid === myHWID) {
-                        // HWID Cocok
                         grantAccess("Akses diizinkan.");
                     } 
                     else {
-                        // HWID Beda
                         showMessage("LISENSI INI TELAH DIGUNAKAN DI PERANGKAT LAIN.", "err");
                         resetButton();
                     }
@@ -215,7 +242,6 @@
             
             setTimeout(() => {
                 // KIRIM SINYAL RAHASIA KE APK
-                // Sinyal ini akan ditangkap oleh LoginClient.smali
                 window.location.href = "minz://sukses";
             }, 1000);
         }
