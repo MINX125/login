@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SYSTEM // MINZ</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
+    <style>
+        :root {
+            --bg: #0a0a0c;
+            --surface: #141418;
+            --text-main: #e0e0e0;
+            --text-muted: #6b6b76;
+            --accent: #00d2ff;
+            --border: #22222a;
+            --danger: #ff3366;
+            --success: #00e676;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 22px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            color: #ffffff;
+        }
+
+        .header span {
+            font-family: monospace;
+            color: var(--accent);
+            font-size: 13px;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-header h2 {
+            margin: 0;
+            font-size: 14px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .btn-generate {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            font-family: monospace;
+        }
+
+        .btn-generate:hover { opacity: 0.8; }
+        .btn-generate:active { transform: translateY(1px); }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th, td {
+            padding: 14px 10px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            color: var(--text-muted);
+            font-weight: 500;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
+        .key-text {
+            font-family: monospace;
+            color: var(--accent);
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .hwid-text { font-family: monospace; font-size: 13px; color: #aaa; }
+        .hwid-empty { color: #444; font-style: italic; font-size: 12px; }
+
+        .status-active { color: var(--success); font-size: 12px; font-weight: 600; letter-spacing: 0.5px; }
+        .status-banned { color: var(--danger); font-size: 12px; font-weight: 600; letter-spacing: 0.5px; }
+
+        .action-group {
+            display: flex;
+            gap: 6px;
+        }
+
+        button.action {
+            background: transparent;
+            border: 1px solid #444;
+            color: #bbb;
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: 0.2s;
+        }
+
+        button.action:hover { border-color: #fff; color: #fff; }
+        button.action.danger:hover { border-color: var(--danger); color: var(--danger); }
+        button.action.warning:hover { border-color: #f39c12; color: #f39c12; }
+        
+        .empty-state { text-align: center; padding: 30px; color: var(--text-muted); font-size: 13px; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>VIP CONTROLLER</h1>
+            <span>root@minz:~# admin</span>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2>Database Lisensi</h2>
+                <button class="btn-generate" onclick="generateRandomKey()">[+] NEW KEY</button>
+            </div>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>License Key</th>
+                        <th>Device ID (HWID)</th>
+                        <th>Status</th>
+                        <th style="text-align: right;">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="keyTable">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // CONFIG FIREBASE (GANTI URL INI DENGAN MILIKMU)
+        const firebaseConfig = {
+            databaseURL: "https://fir-demo-1e3ca-default-rtdb.asia-southeast1.firebasedatabase.app"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // GENERATE KEY: MINZ-XXXXXX
+        function generateRandomKey() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let randomStr = '';
+            for (let i = 0; i < 6; i++) {
+                randomStr += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            const keyStr = "MINZ-" + randomStr;
+
+            db.ref('vip_keys/' + keyStr).set({
+                hwid: "",
+                status: "aktif"
+            });
+        }
+
+        // RENDER DATA REAL-TIME
+        db.ref('vip_keys').on('value', (snapshot) => {
+            const tbody = document.getElementById("keyTable");
+            let rows = "";
+            
+            if (snapshot.exists()) {
+                snapshot.forEach((child) => {
+                    const keyName = child.key;
+                    const data = child.val();
+                    
+                    const hwidDisplay = data.hwid === "" 
+                        ? `<span class="hwid-empty">Null (Unbound)</span>` 
+                        : `<span class="hwid-text">${data.hwid}</span>`;
+                        
+                    const statusDisplay = data.status === "banned" 
+                        ? `<span class="status-banned">BANNED</span>` 
+                        : `<span class="status-active">ACTIVE</span>`;
+                    
+                    const btnBanToggle = data.status === "banned" 
+                        ? `<button class="action" onclick="updateStatus('${keyName}', 'aktif')">Unban</button>`
+                        : `<button class="action danger" onclick="updateStatus('${keyName}', 'banned')">Ban</button>`;
+
+                    rows += `
+                        <tr>
+                            <td class="key-text">${keyName}</td>
+                            <td>${hwidDisplay}</td>
+                            <td>${statusDisplay}</td>
+                            <td>
+                                <div class="action-group" style="justify-content: flex-end;">
+                                    <button class="action warning" onclick="resetHWID('${keyName}')">Reset</button>
+                                    ${btnBanToggle}
+                                    <button class="action danger" onclick="hapusKey('${keyName}')">Del</button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } else {
+                rows = `<tr><td colspan="4" class="empty-state">No license keys found in database.</td></tr>`;
+            }
+            
+            tbody.innerHTML = rows;
+        });
+
+        // ACTION FUNCTIONS (Tanpa Alert Basa-basi)
+        function resetHWID(keyName) {
+            if (confirm(`Reset device binding for ${keyName}?`)) {
+                db.ref('vip_keys/' + keyName).update({ hwid: "" });
+            }
+        }
+
+        function updateStatus(keyName, status) {
+            db.ref('vip_keys/' + keyName).update({ status: status });
+        }
+
+        function hapusKey(keyName) {
+            if (confirm(`Delete ${keyName} permanently?`)) {
+                db.ref('vip_keys/' + keyName).remove();
+            }
+        }
+    </script>
+
+</body>
+</html>
