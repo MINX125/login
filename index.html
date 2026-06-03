@@ -18,6 +18,8 @@
             --border: #22222a;
             --danger: #ff3366;
             --success: #00e676;
+            --warning-bg: rgba(255, 51, 102, 0.08);
+            --warning-border: rgba(255, 51, 102, 0.3);
         }
 
         body {
@@ -30,14 +32,18 @@
             align-items: center;
             height: 100vh;
             overflow: hidden;
-            position: relative; /* Ditambahkan untuk Trace ID */
+            
+            /* Anti seleksi teks & klik kanan untuk keamanan ekstra */
+            -webkit-touch-callout: none; 
+            -webkit-user-select: none; 
+            user-select: none; 
         }
 
         .login-card {
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: 8px;
-            padding: 40px 30px;
+            padding: 35px 25px;
             width: 85%;
             max-width: 320px;
             text-align: center;
@@ -46,102 +52,61 @@
             z-index: 2;
         }
 
-        h2 {
-            margin: 0 0 5px;
-            font-size: 18px;
-            letter-spacing: 1.5px;
-            font-weight: 600;
-            color: #fff;
-        }
-
-        p {
-            color: var(--text-muted);
-            font-size: 12px;
-            margin-bottom: 25px;
-            letter-spacing: 0.5px;
-        }
+        h2 { margin: 0 0 5px; font-size: 18px; letter-spacing: 1.5px; font-weight: 600; color: #fff; }
+        p { color: var(--text-muted); font-size: 12px; margin-bottom: 25px; letter-spacing: 0.5px; }
 
         input {
-            width: 100%;
-            padding: 14px;
-            box-sizing: border-box;
-            background: var(--bg);
-            border: 1px solid var(--border);
-            color: var(--text-main);
-            font-family: monospace;
-            font-size: 15px;
-            border-radius: 6px;
-            margin-bottom: 20px;
-            text-align: center;
-            text-transform: uppercase;
-            transition: all 0.3s;
-            outline: none;
-            letter-spacing: 1px;
+            width: 100%; padding: 14px; box-sizing: border-box; background: var(--bg);
+            border: 1px solid var(--border); color: var(--text-main); font-family: monospace;
+            font-size: 15px; border-radius: 6px; margin-bottom: 20px; text-align: center;
+            text-transform: uppercase; transition: all 0.3s; outline: none; letter-spacing: 1px;
         }
 
-        input:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 1px var(--accent);
-        }
-
-        input::placeholder {
-            color: #444;
-            letter-spacing: normal;
-        }
+        input:focus { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+        input::placeholder { color: #444; letter-spacing: normal; }
 
         button {
-            width: 100%;
-            background: var(--accent);
-            color: #fff;
-            border: none;
-            padding: 14px;
-            font-size: 13px;
-            font-weight: 600;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: opacity 0.2s;
-            letter-spacing: 1px;
-            text-transform: uppercase;
+            width: 100%; background: var(--accent); color: #fff; border: none; padding: 14px;
+            font-size: 13px; font-weight: 600; border-radius: 6px; cursor: pointer;
+            transition: opacity 0.2s; letter-spacing: 1px; text-transform: uppercase;
         }
 
         button:hover { opacity: 0.9; }
         button:active { transform: translateY(1px); }
 
-        #msgBox {
-            margin-top: 20px;
-            font-size: 12px;
-            font-weight: 500;
-            height: 15px;
-            transition: color 0.3s;
-        }
-
+        #msgBox { margin-top: 15px; font-size: 12px; font-weight: 500; height: 15px; transition: color 0.3s; }
         .err { color: var(--danger); }
         .succ { color: var(--success); }
         .load { color: var(--text-muted); }
 
-        /* GAYA BARU UNTUK TRACE ID */
-        .trace-id-container {
-            margin-top: 30px;
-            padding-top: 15px;
-            border-top: 1px dashed #333;
-        }
+        /* AREA TRACE ID */
+        .trace-id-container { margin-top: 25px; padding-top: 15px; border-top: 1px dashed #333; }
+        .trace-id-text { font-family: monospace; font-size: 10px; color: #555; letter-spacing: 1px; }
+        .trace-id-value { color: #888; font-weight: bold; }
 
-        .trace-id-text {
-            font-family: monospace;
+        /* KOTAK PERINGATAN BARU */
+        .critical-warning {
+            margin-top: 15px;
+            padding: 12px;
+            background: var(--warning-bg);
+            border: 1px solid var(--warning-border);
+            border-radius: 6px;
             font-size: 10px;
-            color: #555;
-            letter-spacing: 1px;
+            color: #dcdcdc;
+            text-align: left;
+            line-height: 1.5;
         }
 
-        .trace-id-value {
-            color: #888;
-            font-weight: bold;
+        .critical-warning strong {
+            display: block;
+            color: var(--danger);
+            font-size: 11px;
+            margin-bottom: 4px;
+            letter-spacing: 0.5px;
         }
     </style>
 </head>
-<body>
-
-    <div class="login-card">
+<body oncontextmenu="return false;"> <div class="login-card">
         <h2>LOGIN EXAM MOD</h2>
         <p>Akses Terenkripsi</p>
         
@@ -153,34 +118,39 @@
         <div class="trace-id-container">
             <span class="trace-id-text">SYSTEM TRACE ID: <br><span class="trace-id-value" id="displayHWID">SCANNING...</span></span>
         </div>
+
+        <div class="critical-warning">
+            <strong>⚠️ CRITICAL WARNING</strong>
+            Dilarang melakukan <i>"Clear Data / Hapus Cache"</i> pada pengaturan aplikasi setelah login. Hal tersebut akan mereset ID Perangkat dan membuat Lisensi Anda hangus permanen!
+        </div>
     </div>
 
     <script>
-        // 1. CONFIG FIREBASE
+        // CONFIG FIREBASE
         const firebaseConfig = {
             databaseURL: "https://fir-demo-1e3ca-default-rtdb.asia-southeast1.firebasedatabase.app"
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // 2. DEVICE BINDING (HWID)
+        // DEVICE BINDING
         let myHWID = localStorage.getItem("DEVICE_HWID");
         if (!myHWID) {
             myHWID = "DEV-" + Math.random().toString(36).substr(2, 10).toUpperCase();
             localStorage.setItem("DEVICE_HWID", myHWID);
         }
 
-        // TAMPILKAN HWID KE LAYAR DENGAN EFEK DELAY KECIL BIAR KEREN
+        // TAMPILKAN HWID
         setTimeout(() => {
             document.getElementById("displayHWID").innerText = myHWID;
         }, 800);
 
-        // 3. FUNGSI LOGIKA LOGIN
+        // FUNGSI LOGIKA LOGIN
         const msgBox = document.getElementById("msgBox");
         const btnAuth = document.getElementById("btnAuth");
 
         function showMessage(text, type) {
-            msgBox.textContent = text;
+            msgBox.innerHTML = text; // Diubah jadi innerHTML agar mendukung tag link
             msgBox.className = type;
         }
 
@@ -217,7 +187,8 @@
                         grantAccess("Akses diizinkan.");
                     } 
                     else {
-                        showMessage("LISENSI INI TELAH DIGUNAKAN DI PERANGKAT LAIN.", "err");
+                        // Jika HWID beda (bisa karena dipakai orang lain, atau dia habis hapus cache)
+                        showMessage("LISENSI DIGUNAKAN DI PERANGKAT LAIN! <br><a href='#' style='color:#ff3366; text-decoration:underline;' onclick='alert(\"Harap hubungi Admin jika Anda tidak sengaja menghapus data aplikasi.\")'>Hubungi Admin</a>", "err");
                         resetButton();
                     }
                 } else {
@@ -235,13 +206,11 @@
             btnAuth.disabled = false;
         }
 
-        // 4. JEMBATAN KE APLIKASI SMALI
         function grantAccess(msg) {
             showMessage(msg + " Memuat...", "succ");
             btnAuth.textContent = "AUTHORIZED";
             
             setTimeout(() => {
-                // KIRIM SINYAL RAHASIA KE APK
                 window.location.href = "minz://sukses";
             }, 1000);
         }
