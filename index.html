@@ -77,6 +77,7 @@
     </div>
 
     <script>
+        // BACKGROUND ANIMASI PARTIKEL
         const canvas = document.getElementById('bg-canvas');
         const ctx = canvas.getContext('2d');
         let width, height;
@@ -104,12 +105,14 @@
         }
         drawParticles(); 
 
+        // KONFIGURASI FIREBASE
         const firebaseConfig = {
             databaseURL: "https://fir-demo-1e3ca-default-rtdb.asia-southeast1.firebasedatabase.app"
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
+        // GENERATE DEVICE ID (HWID)
         let myHWID = localStorage.getItem("DEVICE_HWID");
         if (!myHWID) {
             myHWID = "DEV-" + Math.random().toString(36).substr(2, 10).toUpperCase();
@@ -140,10 +143,10 @@
                     }
                     if (data.hwid === "") {
                         keyRef.update({ hwid: myHWID }).then(() => {
-                            grantAccess("Lisensi berhasil diikat ke perangkat.", inputKey);
+                            grantAccess("Lisensi berhasil diikat ke perangkat.", inputKey, "BINDING");
                         });
                     } else if (data.hwid === myHWID) {
-                        grantAccess("Akses diizinkan.", inputKey);
+                        grantAccess("Akses diizinkan.", inputKey, "LOGIN");
                     } else {
                         showMessage("LISENSI DIGUNAKAN DI PERANGKAT LAIN! <br><a href='#' style='color:#ff3366; text-decoration:underline;' onclick='alert(\"Harap hubungi Admin MINZZ jika Anda tidak sengaja menghapus data aplikasi.\")'>Hubungi Admin MINZZ</a>", "err");
                         resetButton();
@@ -156,21 +159,20 @@
 
         function resetButton() { btnAuth.textContent = "AUTHENTICATE"; btnAuth.disabled = false; }
 
-        // FUNGSI INI TELAH DIUPGRADE UNTUK MENGIRIM LOG MATA-MATA
-        function grantAccess(msg, usedKey) {
+        function grantAccess(msg, usedKey, tipeAksi) {
             showMessage(msg + " Memuat...", "succ");
             btnAuth.textContent = "AUTHORIZED";
             
-            // Mengirim aktivitas ke Database (Terminal Log)
+            // LOG MATA-MATA
             db.ref('login_logs').push({
                 key: usedKey,
                 hwid: myHWID,
+                aksi: tipeAksi, 
                 waktu: Date.now()
             });
             
             setTimeout(() => { window.location.href = "minz://sukses"; }, 1000);
         }
     </script>
-
 </body>
 </html>
