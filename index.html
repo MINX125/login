@@ -14,7 +14,7 @@
             --surface: #141418;
             --text-main: #e0e0e0;
             --text-muted: #6b6b76;
-            --accent: #008cff; /* Warna Cyan/Biru Elektrik */
+            --accent: #008cff;
             --border: #22222a;
             --danger: #ff3366;
             --success: #00e676;
@@ -22,72 +22,21 @@
             --warning-border: rgba(255, 51, 102, 0.3);
         }
 
-        body {
-            background-color: var(--bg);
-            color: var(--text-main);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            overflow: hidden;
-            position: relative;
-        }
+        body { background-color: var(--bg); color: var(--text-main); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; position: relative; }
+        
+        #bg-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+        
+        h2, p, .trace-id-container, .critical-warning, button { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
 
-        /* EFEK CANVAS BACKGROUND TEPAT DI BELAKANG KARTU */
-        #bg-canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1; /* Di bawah login card */
-            pointer-events: none; /* Agar tidak menghalangi sentuhan layar */
-        }
-
-        h2, p, .trace-id-container, .critical-warning, button {
-            -webkit-touch-callout: none; 
-            -webkit-user-select: none; 
-            user-select: none; 
-        }
-
-        .login-card {
-            background: rgba(20, 20, 24, 0.85); /* Dibuat sedikit transparan agar partikel tembus pandang */
-            backdrop-filter: blur(8px); /* Efek blur kaca sinematik */
-            -webkit-backdrop-filter: blur(8px);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 35px 25px;
-            width: 85%;
-            max-width: 320px;
-            text-align: center;
-            box-shadow: 0 10px 40px rgba(0, 140, 255, 0.1); /* Cahaya berpendar dari belakang kartu */
-            position: relative;
-            z-index: 2; /* Berada di atas partikel */
-        }
-
+        .login-card { background: rgba(20, 20, 24, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid var(--border); border-radius: 8px; padding: 35px 25px; width: 85%; max-width: 320px; text-align: center; box-shadow: 0 10px 40px rgba(0, 140, 255, 0.1); position: relative; z-index: 2; }
         h2 { margin: 0 0 5px; font-size: 18px; letter-spacing: 1.5px; font-weight: 600; color: #fff; }
         p { color: var(--text-muted); font-size: 12px; margin-bottom: 25px; letter-spacing: 0.5px; }
 
-        input {
-            width: 100%; padding: 14px; box-sizing: border-box; background: rgba(10, 10, 12, 0.7);
-            border: 1px solid var(--border); color: var(--text-main); font-family: monospace;
-            font-size: 15px; border-radius: 6px; margin-bottom: 20px; text-align: center;
-            text-transform: uppercase; transition: all 0.3s; outline: none; letter-spacing: 1px;
-            -webkit-user-select: text;
-            user-select: text;
-        }
-
+        input { width: 100%; padding: 14px; box-sizing: border-box; background: rgba(10, 10, 12, 0.7); border: 1px solid var(--border); color: var(--text-main); font-family: monospace; font-size: 15px; border-radius: 6px; margin-bottom: 20px; text-align: center; text-transform: uppercase; transition: all 0.3s; outline: none; letter-spacing: 1px; -webkit-user-select: text; user-select: text; }
         input:focus { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); background: var(--bg); }
         input::placeholder { color: #444; letter-spacing: normal; }
 
-        button {
-            width: 100%; background: var(--accent); color: #fff; border: none; padding: 14px;
-            font-size: 13px; font-weight: 600; border-radius: 6px; cursor: pointer;
-            transition: opacity 0.2s; letter-spacing: 1px; text-transform: uppercase;
-        }
-
+        button { width: 100%; background: var(--accent); color: #fff; border: none; padding: 14px; font-size: 13px; font-weight: 600; border-radius: 6px; cursor: pointer; transition: opacity 0.2s; letter-spacing: 1px; text-transform: uppercase; }
         button:hover { opacity: 0.9; box-shadow: 0 0 15px rgba(0, 140, 255, 0.4); }
         button:active { transform: translateY(1px); }
 
@@ -100,25 +49,8 @@
         .trace-id-text { font-family: monospace; font-size: 10px; color: #555; letter-spacing: 1px; }
         .trace-id-value { color: #888; font-weight: bold; text-shadow: 0 0 5px rgba(136, 136, 136, 0.3); }
 
-        .critical-warning {
-            margin-top: 15px;
-            padding: 12px;
-            background: var(--warning-bg);
-            border: 1px solid var(--warning-border);
-            border-radius: 6px;
-            font-size: 10px;
-            color: #dcdcdc;
-            text-align: left;
-            line-height: 1.5;
-        }
-
-        .critical-warning strong {
-            display: block;
-            color: var(--danger);
-            font-size: 11px;
-            margin-bottom: 4px;
-            letter-spacing: 0.5px;
-        }
+        .critical-warning { margin-top: 15px; padding: 12px; background: var(--warning-bg); border: 1px solid var(--warning-border); border-radius: 6px; font-size: 10px; color: #dcdcdc; text-align: left; line-height: 1.5; }
+        .critical-warning strong { display: block; color: var(--danger); font-size: 11px; margin-bottom: 4px; letter-spacing: 0.5px; }
     </style>
 </head>
 <body>
@@ -145,60 +77,33 @@
     </div>
 
     <script>
-        // ==========================================
-        // MESIN ANIMASI DARK CINEMATIC PARTICLE
-        // ==========================================
         const canvas = document.getElementById('bg-canvas');
         const ctx = canvas.getContext('2d');
         let width, height;
         const particles = [];
-        
-        // Optimasi: Jumlah partikel dibatasi di angka 45 agar tidak membebani GPU HP
         const particleCount = 45; 
 
-        function resize() {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
-        }
+        function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
         window.addEventListener('resize', resize);
         resize();
 
         for(let i = 0; i < particleCount; i++) {
-            particles.push({
-                x: Math.random() * width,
-                y: Math.random() * height,
-                r: Math.random() * 1.5 + 0.5, // Ukuran titik debu
-                vx: (Math.random() - 0.5) * 0.4, // Kecepatan melayang X
-                vy: (Math.random() - 0.5) * 0.4, // Kecepatan melayang Y
-                alpha: Math.random() * 0.5 + 0.1
-            });
+            particles.push({ x: Math.random() * width, y: Math.random() * height, r: Math.random() * 1.5 + 0.5, vx: (Math.random() - 0.5) * 0.4, vy: (Math.random() - 0.5) * 0.4, alpha: Math.random() * 0.5 + 0.1 });
         }
 
         function drawParticles() {
             ctx.clearRect(0, 0, width, height);
-            
             particles.forEach(p => {
-                p.x += p.vx;
-                p.y += p.vy;
-                
-                // Jika partikel keluar layar, panggil kembali dari sisi sebaliknya
-                if(p.x < 0) p.x = width;
-                if(p.x > width) p.x = 0;
-                if(p.y < 0) p.y = height;
-                if(p.y > height) p.y = 0;
-
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-                // Warna Cyan/Biru bercahaya menyesuaikan tema
-                ctx.fillStyle = `rgba(0, 140, 255, ${p.alpha})`; 
-                ctx.fill();
+                p.x += p.vx; p.y += p.vy;
+                if(p.x < 0) p.x = width; if(p.x > width) p.x = 0;
+                if(p.y < 0) p.y = height; if(p.y > height) p.y = 0;
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(0, 140, 255, ${p.alpha})`; ctx.fill();
             });
             requestAnimationFrame(drawParticles);
         }
-        drawParticles(); // Jalankan loop animasi
-        // ==========================================
+        drawParticles(); 
 
-        // CONFIG FIREBASE
         const firebaseConfig = {
             databaseURL: "https://fir-demo-1e3ca-default-rtdb.asia-southeast1.firebasedatabase.app"
         };
@@ -211,28 +116,18 @@
             localStorage.setItem("DEVICE_HWID", myHWID);
         }
 
-        setTimeout(() => {
-            document.getElementById("displayHWID").innerText = myHWID;
-        }, 800);
+        setTimeout(() => { document.getElementById("displayHWID").innerText = myHWID; }, 800);
 
         const msgBox = document.getElementById("msgBox");
         const btnAuth = document.getElementById("btnAuth");
 
-        function showMessage(text, type) {
-            msgBox.innerHTML = text; 
-            msgBox.className = type;
-        }
+        function showMessage(text, type) { msgBox.innerHTML = text; msgBox.className = type; }
 
         function prosesLogin() {
             const inputKey = document.getElementById("keyInput").value.trim().toUpperCase();
-            
-            if(inputKey === "") {
-                showMessage("License Key diperlukan.", "err");
-                return;
-            }
+            if(inputKey === "") { showMessage("License Key diperlukan.", "err"); return; }
 
-            btnAuth.textContent = "VERIFYING...";
-            btnAuth.disabled = true;
+            btnAuth.textContent = "VERIFYING..."; btnAuth.disabled = true;
             showMessage("Memeriksa kredensial ke server...", "load");
 
             const keyRef = db.ref('vip_keys/' + inputKey);
@@ -240,47 +135,40 @@
             keyRef.once('value').then((snapshot) => {
                 if (snapshot.exists()) {
                     const data = snapshot.val();
-
                     if (data.status === "banned") {
-                        showMessage("AKSES DITOLAK. LISENSI DIBLOKIR.", "err");
-                        resetButton();
-                        return;
+                        showMessage("AKSES DITOLAK. LISENSI DIBLOKIR.", "err"); resetButton(); return;
                     }
-
                     if (data.hwid === "") {
                         keyRef.update({ hwid: myHWID }).then(() => {
-                            grantAccess("Lisensi berhasil diikat ke perangkat.");
+                            grantAccess("Lisensi berhasil diikat ke perangkat.", inputKey);
                         });
-                    } 
-                    else if (data.hwid === myHWID) {
-                        grantAccess("Akses diizinkan.");
-                    } 
-                    else {
+                    } else if (data.hwid === myHWID) {
+                        grantAccess("Akses diizinkan.", inputKey);
+                    } else {
                         showMessage("LISENSI DIGUNAKAN DI PERANGKAT LAIN! <br><a href='#' style='color:#ff3366; text-decoration:underline;' onclick='alert(\"Harap hubungi Admin MINZZ jika Anda tidak sengaja menghapus data aplikasi.\")'>Hubungi Admin MINZZ</a>", "err");
                         resetButton();
                     }
                 } else {
-                    showMessage("LICENSE KEY TIDAK VALID/TIDAK DITEMUKAN.", "err");
-                    resetButton();
+                    showMessage("LICENSE KEY TIDAK VALID/TIDAK DITEMUKAN.", "err"); resetButton();
                 }
-            }).catch((error) => {
-                showMessage("Gagal terhubung ke database.", "err");
-                resetButton();
-            });
+            }).catch((error) => { showMessage("Gagal terhubung ke database.", "err"); resetButton(); });
         }
 
-        function resetButton() {
-            btnAuth.textContent = "AUTHENTICATE";
-            btnAuth.disabled = false;
-        }
+        function resetButton() { btnAuth.textContent = "AUTHENTICATE"; btnAuth.disabled = false; }
 
-        function grantAccess(msg) {
+        // FUNGSI INI TELAH DIUPGRADE UNTUK MENGIRIM LOG MATA-MATA
+        function grantAccess(msg, usedKey) {
             showMessage(msg + " Memuat...", "succ");
             btnAuth.textContent = "AUTHORIZED";
             
-            setTimeout(() => {
-                window.location.href = "minz://sukses";
-            }, 1000);
+            // Mengirim aktivitas ke Database (Terminal Log)
+            db.ref('login_logs').push({
+                key: usedKey,
+                hwid: myHWID,
+                waktu: Date.now()
+            });
+            
+            setTimeout(() => { window.location.href = "minz://sukses"; }, 1000);
         }
     </script>
 
