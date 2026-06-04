@@ -10,29 +10,21 @@
 
     <style>
         :root {
-            --bg: #0a0a0c;
-            --surface: #141418;
-            --text-main: #e0e0e0;
-            --text-muted: #6b6b76;
-            --accent: #008cff;
-            --border: #22222a;
-            --danger: #ff3366;
-            --success: #00e676;
-            --warning-bg: rgba(255, 51, 102, 0.08);
-            --warning-border: rgba(255, 51, 102, 0.3);
+            --bg: #0a0a0c; --surface: #141418; --text-main: #e0e0e0; --text-muted: #6b6b76;
+            --accent: #008cff; --border: #22222a; --danger: #ff3366; --success: #00e676;
+            --warning-bg: rgba(255, 51, 102, 0.08); --warning-border: rgba(255, 51, 102, 0.3);
+            --trial-color: #9b59b6; /* Warna ungu untuk trial */
         }
 
         body { background-color: var(--bg); color: var(--text-main); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; position: relative; }
-        
         #bg-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
-        
         h2, p, .trace-id-container, .critical-warning, button { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
 
         .login-card { background: rgba(20, 20, 24, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid var(--border); border-radius: 8px; padding: 35px 25px; width: 85%; max-width: 320px; text-align: center; box-shadow: 0 10px 40px rgba(0, 140, 255, 0.1); position: relative; z-index: 2; }
         h2 { margin: 0 0 5px; font-size: 18px; letter-spacing: 1.5px; font-weight: 600; color: #fff; }
         p { color: var(--text-muted); font-size: 12px; margin-bottom: 25px; letter-spacing: 0.5px; }
 
-        input { width: 100%; padding: 14px; box-sizing: border-box; background: rgba(10, 10, 12, 0.7); border: 1px solid var(--border); color: var(--text-main); font-family: monospace; font-size: 15px; border-radius: 6px; margin-bottom: 20px; text-align: center; text-transform: uppercase; transition: all 0.3s; outline: none; letter-spacing: 1px; -webkit-user-select: text; user-select: text; }
+        input { width: 100%; padding: 14px; box-sizing: border-box; background: rgba(10, 10, 12, 0.7); border: 1px solid var(--border); color: var(--text-main); font-family: monospace; font-size: 15px; border-radius: 6px; margin-bottom: 15px; text-align: center; text-transform: uppercase; transition: all 0.3s; outline: none; letter-spacing: 1px; -webkit-user-select: text; user-select: text; }
         input:focus { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); background: var(--bg); }
         input::placeholder { color: #444; letter-spacing: normal; }
 
@@ -40,10 +32,20 @@
         button:hover { opacity: 0.9; box-shadow: 0 0 15px rgba(0, 140, 255, 0.4); }
         button:active { transform: translateY(1px); }
 
-        #msgBox { margin-top: 15px; font-size: 12px; font-weight: 500; height: 15px; transition: color 0.3s; }
-        .err { color: var(--danger); }
-        .succ { color: var(--success); }
-        .load { color: var(--text-muted); }
+        /* GAYA TOMBOL FREE TRIAL BARU */
+        .btn-trial {
+            background: transparent;
+            border: 1px dashed var(--trial-color);
+            color: var(--trial-color);
+            margin-top: 10px;
+            padding: 12px;
+            font-size: 11px;
+            box-shadow: none;
+        }
+        .btn-trial:hover { background: rgba(155, 89, 182, 0.1); box-shadow: none; }
+
+        #msgBox { margin-top: 15px; font-size: 12px; font-weight: 500; min-height: 15px; transition: color 0.3s; line-height: 1.4; }
+        .err { color: var(--danger); } .succ { color: var(--success); } .load { color: var(--text-muted); }
 
         .trace-id-container { margin-top: 25px; padding-top: 15px; border-top: 1px dashed #333; }
         .trace-id-text { font-family: monospace; font-size: 10px; color: #555; letter-spacing: 1px; }
@@ -63,6 +65,8 @@
         
         <input type="text" id="keyInput" placeholder="ENTER LICENSE KEY" autocomplete="off" spellcheck="false">
         <button id="btnAuth" onclick="prosesLogin()">AUTHENTICATE</button>
+        
+        <button id="btnTrial" class="btn-trial" onclick="klaimTrial()">[🎁] CLAIM 10 MIN FREE TRIAL</button>
         
         <div id="msgBox"></div>
 
@@ -123,14 +127,17 @@
 
         const msgBox = document.getElementById("msgBox");
         const btnAuth = document.getElementById("btnAuth");
+        const btnTrial = document.getElementById("btnTrial");
 
         function showMessage(text, type) { msgBox.innerHTML = text; msgBox.className = type; }
+        function resetButton() { btnAuth.textContent = "AUTHENTICATE"; btnAuth.disabled = false; btnTrial.disabled = false; }
 
+        // FUNGSI LOGIN NORMAL (KEY VIP)
         function prosesLogin() {
             const inputKey = document.getElementById("keyInput").value.trim().toUpperCase();
             if(inputKey === "") { showMessage("License Key diperlukan.", "err"); return; }
 
-            btnAuth.textContent = "VERIFYING..."; btnAuth.disabled = true;
+            btnAuth.textContent = "VERIFYING..."; btnAuth.disabled = true; btnTrial.disabled = true;
             showMessage("Memeriksa kredensial ke server...", "load");
 
             const keyRef = db.ref('vip_keys/' + inputKey);
@@ -157,25 +164,64 @@
             }).catch((error) => { showMessage("Gagal terhubung ke database.", "err"); resetButton(); });
         }
 
-        function resetButton() { btnAuth.textContent = "AUTHENTICATE"; btnAuth.disabled = false; }
+        // ==========================================
+        // FUNGSI FREE TRIAL 10 MENIT
+        // ==========================================
+        function klaimTrial() {
+            btnAuth.disabled = true; btnTrial.disabled = true;
+            btnTrial.textContent = "CHECKING TRIAL...";
+            showMessage("Memeriksa status Trial perangkat ini...", "load");
 
-        // FUNGSI MATA-MATA (SUDAH DIPERBAIKI ANTI-GAGAL)
+            const trialRef = db.ref('free_trials/' + myHWID);
+
+            trialRef.once('value').then((snapshot) => {
+                const waktuSekarang = Date.now();
+                const batasWaktu = 10 * 60 * 1000; // 10 Menit dalam Milidetik
+
+                if (snapshot.exists()) {
+                    // Jika sudah pernah klaim, cek sisa waktunya
+                    const dataTrial = snapshot.val();
+                    const waktuBerlalu = waktuSekarang - dataTrial.waktu_klaim;
+
+                    if (waktuBerlalu < batasWaktu) {
+                        // Masih dalam sisa 10 menit
+                        const sisaMenit = Math.ceil((batasWaktu - waktuBerlalu) / 60000);
+                        grantAccess(`Trial masih aktif. Sisa waktu: ${sisaMenit} Menit.`, "FREE-TRIAL", "TRIAL_LOGIN");
+                    } else {
+                        // Waktu 10 menit sudah habis
+                        showMessage("WAKTU TRIAL ANDA SUDAH HABIS PERMANEN!<br>Silakan beli Lisensi VIP.", "err");
+                        btnTrial.textContent = "[X] TRIAL EXPIRED";
+                        btnAuth.disabled = false; // Buka tombol utama agar dia bisa login pakai Key VIP
+                    }
+                } else {
+                    // Belum pernah klaim sama sekali, berikan waktu 10 menit sekarang
+                    trialRef.set({
+                        waktu_klaim: waktuSekarang
+                    }).then(() => {
+                        grantAccess("Free Trial 10 Menit berhasil diaktifkan!", "FREE-TRIAL", "TRIAL_NEW");
+                    });
+                }
+            }).catch((error) => {
+                showMessage("Gagal terhubung ke database.", "err");
+                resetButton();
+                btnTrial.textContent = "[🎁] CLAIM 10 MIN FREE TRIAL";
+            });
+        }
+        // ==========================================
+
         function grantAccess(msg, usedKey, tipeAksi) {
-            showMessage(msg + " Memuat...", "succ");
+            showMessage(msg + "<br>Memuat Ujian...", "succ");
             btnAuth.textContent = "AUTHORIZED";
             
-            // Tembak log ke Firebase dan tunggu konfirmasi sukses
             db.ref('login_logs').push({
                 key: usedKey,
                 hwid: myHWID,
                 aksi: tipeAksi, 
                 waktu: Date.now()
             }).then(() => {
-                // Log sukses, izinkan masuk ke web
-                setTimeout(() => { window.location.href = "minz://sukses"; }, 500);
+                setTimeout(() => { window.location.href = "minz://sukses"; }, 700);
             }).catch((error) => {
-                // Jika log gagal karena sinyal, tetap izinkan masuk agar tidak error
-                setTimeout(() => { window.location.href = "minz://sukses"; }, 500);
+                setTimeout(() => { window.location.href = "minz://sukses"; }, 700);
             });
         }
     </script>
