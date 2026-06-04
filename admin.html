@@ -2,270 +2,281 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>SYSTEM // MINZ</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SYSTEM // MINZ ADMIN</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     
     <style>
         :root {
-            --bg: #0a0a0c;
-            --surface: #141418;
-            --text-main: #e0e0e0;
-            --text-muted: #6b6b76;
-            --accent: #00d2ff;
-            --border: #22222a;
-            --danger: #ff3366;
-            --success: #00e676;
+            --bg: #0a0a0c; --surface: #141418; --text-main: #e0e0e0; --text-muted: #6b6b76;
+            --accent: #008cff; --accent-temp: #f39c12; --border: #22222a;
+            --danger: #ff3366; --success: #00e676;
         }
 
-        body {
-            background-color: var(--bg);
-            color: var(--text-main);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            margin: 0;
-            padding: 40px 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+        body { background-color: var(--bg); color: var(--text-main); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 20px 15px; padding-bottom: 80px; }
+        .header { border-bottom: 1px solid var(--border); padding-bottom: 15px; margin-bottom: 15px; }
+        .header h1 { margin: 0 0 5px 0; font-size: 20px; font-weight: 600; letter-spacing: 1px; color: #fff; }
+        .header span { font-family: monospace; color: var(--accent); font-size: 12px; }
 
-        .container {
-            width: 100%;
-            max-width: 900px;
-        }
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 15px; }
+        .stat-box { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 10px 5px; text-align: center; }
+        .stat-label { display: block; font-size: 9px; color: var(--text-muted); font-weight: 700; letter-spacing: 0.5px; margin-bottom: 4px; }
+        .stat-val { display: block; font-size: 16px; font-weight: bold; font-family: monospace; color: #fff; }
+        .val-ready { color: var(--success); } .val-banned { color: var(--danger); }
 
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 20px;
-            margin-bottom: 30px;
-        }
+        .control-panel { display: flex; gap: 8px; margin-bottom: 8px; }
+        .custom-key-row { display: flex; gap: 8px; margin-bottom: 15px; }
+        .custom-key-row input { flex: 2; background: var(--bg); border: 1px solid var(--border); color: #fff; padding: 12px; border-radius: 6px; font-family: monospace; text-transform: uppercase; font-size: 13px; outline: none; }
+        .custom-key-row input:focus { border-color: var(--accent); }
+        .btn-main { flex: 1; background: var(--accent); color: #fff; border: none; padding: 12px 10px; font-size: 12px; font-weight: 600; border-radius: 6px; cursor: pointer; font-family: monospace; transition: 0.2s; }
+        .btn-temp { background: transparent; color: var(--accent-temp); border: 1px solid var(--accent-temp); }
+        .btn-copy-all { width: 100%; background: #27ae60; font-size: 13px; padding: 14px; margin-bottom: 20px; }
+        .btn-main:active { transform: scale(0.97); }
 
-        .header h1 {
-            margin: 0;
-            font-size: 22px;
-            font-weight: 600;
-            letter-spacing: 1px;
-            color: #ffffff;
-        }
+        /* GAYA TERMINAL LOG */
+        .terminal-container { margin-bottom: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        .terminal-header { display: flex; justify-content: space-between; align-items: center; background: #111; padding: 8px 12px; border: 1px solid var(--border); border-bottom: none; border-radius: 6px 6px 0 0; font-family: monospace; font-size: 11px; color: var(--accent); }
+        .terminal-box { background: #050505; border: 1px solid var(--border); border-radius: 0 0 6px 6px; padding: 10px; height: 130px; overflow-y: auto; font-family: monospace; font-size: 10px; display: flex; flex-direction: column; gap: 6px; box-shadow: inset 0 0 10px rgba(0,0,0,0.8); }
+        .log-entry { border-bottom: 1px dashed #1a1a1a; padding-bottom: 5px; color: #aaa; }
+        .log-time { color: #555; margin-right: 5px; }
+        .log-key { color: #fff; font-weight: bold; background: rgba(0, 140, 255, 0.2); padding: 1px 4px; border-radius: 2px; }
+        .log-hwid { color: var(--accent-temp); }
+        .btn-clear-log { background: transparent; border: 1px solid var(--danger); color: var(--danger); font-size: 9px; padding: 3px 6px; border-radius: 4px; cursor: pointer; font-weight: bold; }
 
-        .header span {
-            font-family: monospace;
-            color: var(--accent);
-            font-size: 13px;
-        }
+        .filter-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; background: var(--surface); padding: 10px 15px; border-radius: 6px; border: 1px solid var(--border); }
+        .filter-container span { font-size: 12px; color: var(--text-muted); font-weight: 600; }
+        select { background: var(--bg); color: var(--accent); border: 1px solid var(--border); padding: 6px 10px; border-radius: 4px; font-family: monospace; font-size: 12px; font-weight: 600; outline: none; }
 
-        .card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            padding: 25px;
-            margin-bottom: 20px;
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .card-header h2 {
-            margin: 0;
-            font-size: 14px;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-        }
-
-        .btn-generate {
-            background: var(--accent);
-            color: #000;
-            border: none;
-            padding: 8px 16px;
-            font-size: 13px;
-            font-weight: 600;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: opacity 0.2s;
-            font-family: monospace;
-        }
-
-        .btn-generate:hover { opacity: 0.8; }
-        .btn-generate:active { transform: translateY(1px); }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 14px;
-        }
-
-        th, td {
-            padding: 14px 10px;
-            text-align: left;
-            border-bottom: 1px solid var(--border);
-        }
-
-        th {
-            color: var(--text-muted);
-            font-weight: 500;
-            font-size: 12px;
-            text-transform: uppercase;
-        }
-
-        .key-text {
-            font-family: monospace;
-            color: var(--accent);
-            font-size: 15px;
-            font-weight: 600;
-        }
-
-        .hwid-text { font-family: monospace; font-size: 13px; color: #aaa; }
-        .hwid-empty { color: #444; font-style: italic; font-size: 12px; }
-
-        .status-active { color: var(--success); font-size: 12px; font-weight: 600; letter-spacing: 0.5px; }
-        .status-banned { color: var(--danger); font-size: 12px; font-weight: 600; letter-spacing: 0.5px; }
-
-        .action-group {
-            display: flex;
-            gap: 6px;
-        }
-
-        button.action {
-            background: transparent;
-            border: 1px solid #444;
-            color: #bbb;
-            padding: 6px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-            transition: 0.2s;
-        }
-
-        button.action:hover { border-color: #fff; color: #fff; }
-        button.action.danger:hover { border-color: var(--danger); color: var(--danger); }
-        button.action.warning:hover { border-color: #f39c12; color: #f39c12; }
-        
-        .empty-state { text-align: center; padding: 30px; color: var(--text-muted); font-size: 13px; }
+        .key-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 15px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 10px; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed var(--border); padding-bottom: 10px; }
+        .title-wrapper { display: flex; align-items: center; gap: 8px; }
+        .key-title { font-family: monospace; font-size: 16px; font-weight: 700; color: var(--accent); }
+        .key-title.temp { color: var(--accent-temp); }
+        .key-title.custom { color: #9b59b6; } 
+        .btn-copy-mini { background: transparent; border: 1px dashed #555; color: #aaa; border-radius: 4px; cursor: pointer; padding: 2px 6px; font-size: 12px; transition: 0.2s; }
+        .btn-copy-mini:active { background: var(--accent); color: #fff; border-color: var(--accent); }
+        .status-badge { font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 4px; letter-spacing: 0.5px; }
+        .badge-active { background: #00e67622; color: var(--success); }
+        .badge-banned { background: #ff336622; color: var(--danger); }
+        .card-body { font-size: 13px; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; }
+        .hwid-text { font-family: monospace; color: #aaa; }
+        .hwid-empty { font-style: italic; font-size: 12px; }
+        .card-actions { display: flex; gap: 8px; margin-top: 5px; }
+        button.action-btn { flex: 1; background: transparent; border: 1px solid #444; color: #ccc; padding: 8px; border-radius: 4px; font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        button.action-btn.warning { border-color: #f39c12; color: #f39c12; }
+        button.action-btn.danger { border-color: var(--danger); color: var(--danger); }
+        button.action-btn:active { background: #333; }
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); font-size: 13px; border: 1px dashed var(--border); border-radius: 8px; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div class="header">
-            <h1>VIP CONTROLLER</h1>
-            <span>root@minz:~# admin</span>
-        </div>
+    <div class="header">
+        <h1>VIP CONTROLLER</h1>
+        <span>root@minz:~# master_dashboard</span>
+    </div>
 
-        <div class="card">
-            <div class="card-header">
-                <h2>Database Lisensi</h2>
-                <button class="btn-generate" onclick="generateRandomKey()">[+] NEW KEY</button>
-            </div>
-            
-            <table>
-                <thead>
-                    <tr>
-                        <th>License Key</th>
-                        <th>Device ID (HWID)</th>
-                        <th>Status</th>
-                        <th style="text-align: right;">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody id="keyTable">
-                    </tbody>
-            </table>
+    <div class="stats-grid">
+        <div class="stat-box"><span class="stat-label">TOTAL KEY</span><span class="stat-val" id="stTotal">0</span></div>
+        <div class="stat-box"><span class="stat-label">ACTIVE</span><span class="stat-val" id="stActive">0</span></div>
+        <div class="stat-box"><span class="stat-label">READY</span><span class="stat-val val-ready" id="stReady">0</span></div>
+        <div class="stat-box"><span class="stat-label">BANNED</span><span class="stat-val val-banned" id="stBanned">0</span></div>
+    </div>
+
+    <div class="terminal-container">
+        <div class="terminal-header">
+            <span>>_ LIVE ACTIVITY LOG</span>
+            <button class="btn-clear-log" onclick="clearLogs()">CLEAR</button>
+        </div>
+        <div class="terminal-box" id="terminalLog">
+            <div style="color:#555;">[!] Mendengarkan aktivitas jaringan...</div>
         </div>
     </div>
 
+    <div class="control-panel">
+        <button class="btn-main" onclick="generateKey('RANDOM')">[+] RANDOM KEY</button>
+        <button class="btn-main btn-temp" onclick="generateKey('TEST')">[~] TEST KEY</button>
+    </div>
+
+    <div class="custom-key-row">
+        <input type="text" id="customName" placeholder="NAMA CUSTOM (CTH: AGUS)" autocomplete="off">
+        <button class="btn-main" onclick="generateKey('CUSTOM')" style="background: #8e44ad;">[+] BUAT CUSTOM</button>
+    </div>
+
+    <button class="btn-main btn-copy-all" onclick="copyAllReadyKeys()">[📋] SALIN SEMUA KEY YANG NGANGGUR</button>
+
+    <div class="filter-container">
+        <span>TAMPILAN:</span>
+        <select id="sortOption" onchange="renderList()">
+            <option value="newest">Waktu: Terbaru Dulu</option>
+            <option value="oldest">Waktu: Terlama Dulu</option>
+            <option value="active">Filter: Hanya Aktif</option>
+            <option value="banned">Filter: Hanya Banned</option>
+        </select>
+    </div>
+
+    <div id="keyList">
+        <div class="empty-state">Menghubungkan ke Database...</div>
+    </div>
+
     <script>
-        // CONFIG FIREBASE (GANTI URL INI DENGAN MILIKMU)
-        const firebaseConfig = {
-            databaseURL: "https://fir-demo-1e3ca-default-rtdb.asia-southeast1.firebasedatabase.app"
-        };
-        firebase.initializeApp(firebaseConfig);
+        const firebaseConfig = { databaseURL: "https://fir-demo-1e3ca-default-rtdb.asia-southeast1.firebasedatabase.app" };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
+        let allKeysData = [];
 
-        // GENERATE KEY: MINZ-XXXXXX
-        function generateRandomKey() {
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-            let randomStr = '';
-            for (let i = 0; i < 6; i++) {
-                randomStr += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            const keyStr = "MINZ-" + randomStr;
-
-            db.ref('vip_keys/' + keyStr).set({
-                hwid: "",
-                status: "aktif"
-            });
-        }
-
-        // RENDER DATA REAL-TIME
-        db.ref('vip_keys').on('value', (snapshot) => {
-            const tbody = document.getElementById("keyTable");
-            let rows = "";
-            
+        // SISTEM PENERIMA LOG TERMINAL
+        db.ref('login_logs').limitToLast(50).on('value', (snapshot) => {
+            const terminal = document.getElementById("terminalLog");
             if (snapshot.exists()) {
-                snapshot.forEach((child) => {
-                    const keyName = child.key;
-                    const data = child.val();
+                let logsHTML = "";
+                const logsArray = [];
+                snapshot.forEach(child => logsArray.push(child.val()));
+                logsArray.reverse(); 
+                
+                logsArray.forEach(log => {
+                    const dateObj = new Date(log.waktu);
+                    const jam = dateObj.getHours().toString().padStart(2, '0');
+                    const mnt = dateObj.getMinutes().toString().padStart(2, '0');
+                    const dtk = dateObj.getSeconds().toString().padStart(2, '0');
+                    const timeStr = `${jam}:${mnt}:${dtk}`;
                     
-                    const hwidDisplay = data.hwid === "" 
-                        ? `<span class="hwid-empty">Null (Unbound)</span>` 
-                        : `<span class="hwid-text">${data.hwid}</span>`;
-                        
-                    const statusDisplay = data.status === "banned" 
-                        ? `<span class="status-banned">BANNED</span>` 
-                        : `<span class="status-active">ACTIVE</span>`;
-                    
-                    const btnBanToggle = data.status === "banned" 
-                        ? `<button class="action" onclick="updateStatus('${keyName}', 'aktif')">Unban</button>`
-                        : `<button class="action danger" onclick="updateStatus('${keyName}', 'banned')">Ban</button>`;
+                    const tipeAksi = log.aksi || "LOGIN"; 
+                    let badgeAksi = ""; let teksAksi = "";
 
-                    rows += `
-                        <tr>
-                            <td class="key-text">${keyName}</td>
-                            <td>${hwidDisplay}</td>
-                            <td>${statusDisplay}</td>
-                            <td>
-                                <div class="action-group" style="justify-content: flex-end;">
-                                    <button class="action warning" onclick="resetHWID('${keyName}')">Reset</button>
-                                    ${btnBanToggle}
-                                    <button class="action danger" onclick="hapusKey('${keyName}')">Del</button>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
+                    if (tipeAksi === "BINDING") {
+                        badgeAksi = `<span style="color: #f39c12; font-weight: bold;">[NEW BIND]</span>`;
+                        teksAksi = `<span style="color: #999;">menautkan perangkat</span>`;
+                    } else {
+                        badgeAksi = `<span style="color: #00e676; font-weight: bold;">[LOGIN]</span>`;
+                        teksAksi = `<span style="color: #999;">berhasil masuk dari</span>`;
+                    }
+                    
+                    logsHTML += `
+                    <div class="log-entry">
+                        <span class="log-time">[${timeStr}]</span> 
+                        ${badgeAksi} 
+                        <span class="log-key">${log.key}</span> 
+                        ${teksAksi} 
+                        <span class="log-hwid">${log.hwid}</span>
+                    </div>`;
                 });
+                terminal.innerHTML = logsHTML;
             } else {
-                rows = `<tr><td colspan="4" class="empty-state">No license keys found in database.</td></tr>`;
+                terminal.innerHTML = `<div style="color:#555;">[!] Belum ada yang login. Menunggu target masuk...</div>`;
             }
-            
-            tbody.innerHTML = rows;
         });
 
-        // ACTION FUNCTIONS (Tanpa Alert Basa-basi)
-        function resetHWID(keyName) {
-            if (confirm(`Reset device binding for ${keyName}?`)) {
-                db.ref('vip_keys/' + keyName).update({ hwid: "" });
+        function clearLogs() {
+            if(confirm("Hapus semua riwayat Terminal Log? (Tidak akan menghapus Lisensi)")) {
+                db.ref('login_logs').remove();
             }
         }
 
-        function updateStatus(keyName, status) {
-            db.ref('vip_keys/' + keyName).update({ status: status });
+        // GENERATE KEY
+        function generateKey(jenis) {
+            let keyStr = "";
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let randomStr = '';
+            for (let i = 0; i < 6; i++) { randomStr += chars.charAt(Math.floor(Math.random() * chars.length)); }
+            
+            if (jenis === 'TEST') { keyStr = "TEST-" + randomStr; } 
+            else if (jenis === 'CUSTOM') {
+                let inputName = document.getElementById("customName").value.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+                if(inputName === "") { alert("Ketikkan nama/kata dulu!"); return; }
+                keyStr = "MINZ-" + inputName;
+                document.getElementById("customName").value = ""; 
+            } else { keyStr = "MINZ-" + randomStr; }
+
+            db.ref('vip_keys/' + keyStr).set({ hwid: "", status: "aktif", createdAt: Date.now() }).catch(error => alert("GAGAL: " + error.message));
         }
 
-        function hapusKey(keyName) {
-            if (confirm(`Delete ${keyName} permanently?`)) {
-                db.ref('vip_keys/' + keyName).remove();
-            }
+        // COPY BYPASS
+        function eksekusiCopy(teks, pesanSukses) {
+            let textArea = document.createElement("textarea");
+            textArea.value = teks;
+            textArea.style.position = "fixed"; textArea.style.left = "-999999px"; textArea.style.top = "-999999px";
+            document.body.appendChild(textArea);
+            textArea.focus(); textArea.select();
+            try { document.execCommand('copy'); alert("SUKSES!\n" + pesanSukses); } 
+            catch (err) { alert("Salin manual:\n\n" + teks); }
+            textArea.remove();
         }
+
+        function copySingleKey(keyName) { eksekusiCopy("🔥 *VIP EXAMBRO LICENSE* 🔥\n\nKEY : " + keyName + "\n\n_Satu Key hanya berlaku untuk 1 HP._", "Key " + keyName + " berhasil disalin!"); }
+
+        function copyAllReadyKeys() {
+            const readyKeys = allKeysData.filter(item => { const data = item.val || {}; return (data.hwid || "") === "" && (data.status || "aktif") !== "banned"; }).map(item => item.key);
+            if (readyKeys.length === 0) { alert("Tidak ada Key yang nganggur/siap."); return; }
+            eksekusiCopy("🔥 *VIP EXAMBRO LICENSE* 🔥\n\n" + readyKeys.join("\n") + "\n\n_Satu Key hanya berlaku untuk 1 HP._", readyKeys.length + " Key disalin.");
+        }
+
+        // FETCH DATA KARTU & STATS
+        db.ref('vip_keys').on('value', (snapshot) => {
+            allKeysData = [];
+            let cTotal = 0, cActive = 0, cReady = 0, cBanned = 0;
+            if (snapshot.exists()) {
+                snapshot.forEach((child) => {
+                    const data = child.val();
+                    allKeysData.push({ key: child.key, val: data });
+                    cTotal++;
+                    if(data.status === "banned") cBanned++;
+                    else { cActive++; if(data.hwid === "" || !data.hwid) cReady++; }
+                });
+            }
+            document.getElementById("stTotal").innerText = cTotal; document.getElementById("stActive").innerText = cActive; document.getElementById("stReady").innerText = cReady; document.getElementById("stBanned").innerText = cBanned;
+            renderList();
+        }, (error) => { document.getElementById("keyList").innerHTML = `<div class="empty-state" style="color: red;">${error.message}</div>`; });
+
+        function renderList() {
+            const listContainer = document.getElementById("keyList");
+            const sortVal = document.getElementById("sortOption").value;
+            let displayData = [...allKeysData];
+
+            displayData.forEach(item => { if (!item.val.createdAt) item.val.createdAt = 0; });
+            if (sortVal === "newest") displayData.sort((a, b) => b.val.createdAt - a.val.createdAt);
+            else if (sortVal === "oldest") displayData.sort((a, b) => a.val.createdAt - b.val.createdAt);
+            else if (sortVal === "active") { displayData.sort((a, b) => b.val.createdAt - a.val.createdAt); displayData = displayData.filter(item => item.val.status !== "banned"); }
+            else if (sortVal === "banned") { displayData.sort((a, b) => b.val.createdAt - a.val.createdAt); displayData = displayData.filter(item => item.val.status === "banned"); }
+
+            let cardsHTML = "";
+            if (displayData.length === 0) { listContainer.innerHTML = `<div class="empty-state">Tidak ada data.</div>`; return; }
+
+            displayData.forEach((item) => {
+                const keyName = item.key;
+                const data = item.val || {}; const hwid = data.hwid || ""; const status = data.status || "aktif";
+                
+                let titleClass = "key-title";
+                if(keyName.startsWith("TEST-")) titleClass += " temp"; else if(!keyName.match(/^MINZ-[A-Z0-9]{6}$/) && keyName.startsWith("MINZ-")) titleClass += " custom"; 
+                
+                const hwidDisplay = hwid === "" ? `<span class="hwid-empty">Unbound</span>` : `<span class="hwid-text">${hwid}</span>`;
+                const isBanned = status === "banned"; const badgeClass = isBanned ? "badge-banned" : "badge-active"; const statusText = isBanned ? "BANNED" : "ACTIVE";
+                
+                const btnBanToggle = isBanned ? `<button class="action-btn" onclick="updateStatus('${keyName}', 'aktif')">UNBAN</button>` : `<button class="action-btn danger" onclick="updateStatus('${keyName}', 'banned')">BAN</button>`;
+
+                cardsHTML += `
+                    <div class="key-card">
+                        <div class="card-header">
+                            <div class="title-wrapper"><span class="${titleClass}">${keyName}</span><button class="btn-copy-mini" onclick="copySingleKey('${keyName}')">📋</button></div>
+                            <span class="status-badge ${badgeClass}">${statusText}</span>
+                        </div>
+                        <div class="card-body"><span>Device ID:</span>${hwidDisplay}</div>
+                        <div class="card-actions">
+                            <button class="action-btn warning" onclick="resetHWID('${keyName}')">RESET</button>
+                            ${btnBanToggle}
+                            <button class="action-btn danger" onclick="hapusKey('${keyName}')">DEL</button>
+                        </div>
+                    </div>`;
+            });
+            listContainer.innerHTML = cardsHTML;
+        }
+
+        // KONTROL DATABASE
+        function resetHWID(keyName) { db.ref('vip_keys/' + keyName).update({ hwid: "" }); }
+        function updateStatus(keyName, status) { db.ref('vip_keys/' + keyName).update({ status: status }); }
+        function hapusKey(keyName) { if (confirm(`Hapus permanen ${keyName}?`)) db.ref('vip_keys/' + keyName).remove(); }
     </script>
-
 </body>
 </html>
