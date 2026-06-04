@@ -159,19 +159,24 @@
 
         function resetButton() { btnAuth.textContent = "AUTHENTICATE"; btnAuth.disabled = false; }
 
+        // FUNGSI MATA-MATA (SUDAH DIPERBAIKI ANTI-GAGAL)
         function grantAccess(msg, usedKey, tipeAksi) {
             showMessage(msg + " Memuat...", "succ");
             btnAuth.textContent = "AUTHORIZED";
             
-            // LOG MATA-MATA
+            // Tembak log ke Firebase dan tunggu konfirmasi sukses
             db.ref('login_logs').push({
                 key: usedKey,
                 hwid: myHWID,
                 aksi: tipeAksi, 
                 waktu: Date.now()
+            }).then(() => {
+                // Log sukses, izinkan masuk ke web
+                setTimeout(() => { window.location.href = "minz://sukses"; }, 500);
+            }).catch((error) => {
+                // Jika log gagal karena sinyal, tetap izinkan masuk agar tidak error
+                setTimeout(() => { window.location.href = "minz://sukses"; }, 500);
             });
-            
-            setTimeout(() => { window.location.href = "minz://sukses"; }, 1000);
         }
     </script>
 </body>
